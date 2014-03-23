@@ -8,7 +8,6 @@ import (
 	"strings"
 )
 
-
 const (
 	libraryVersion = "0.1"
 	userAgent      = "genkins/" + libraryVersion
@@ -25,9 +24,11 @@ type Client struct {
 
 	UserAgent string
 
+	Jobs *JobsService
+	Builds *BuildsService
 }
 
-func (c *Client) NewUrl(urlString string) (*url.URL, error) {
+func (c *Client) NewRequest(method string, urlString string, body interface{}) (*http.Request, error) {
 
 	rel, err := url.Parse(urlString)
 
@@ -40,12 +41,10 @@ func (c *Client) NewUrl(urlString string) (*url.URL, error) {
 	if err != nil {
 		return nil, err
 	}
-	u.Query().Set("token", c.ApiKey)
 
-	return u, nil
-}
-
-func (c *Client) NewRequest(method string, u *url.URL, body interface{}) (*http.Request, error) {
+	v := u.Query()
+	v.Set("token", c.ApiKey)
+	u.RawQuery = v.Encode()
 
 	buf := new(bytes.Buffer)
 	if body != nil {
@@ -94,6 +93,7 @@ func NewClient(hostname string, apiKeyStr string) *Client {
 		BaseURL: baseURL,
 		ApiKey: apiKeyStr,
 	}
-
+	c.Jobs = &JobsService{client: c}
+	c.Builds = &BuildsService{client: c}
 	return c
 }

@@ -27,7 +27,7 @@ func setUp() {
 	server = httptest.NewServer(mux)
 
 	// src.gobucket client configured to use test server
-	client = NewClient("", "")
+	client = NewClient("", "theApiKey")
 	url, _ := url.Parse(server.URL)
 	client.BaseURL = url
 }
@@ -37,24 +37,6 @@ func tearDown() {
 	server.Close()
 }
 
-func TestClientNewUrl(t *testing.T) {
-
-	c := NewClient("http://localhost", "apiKey")
-
-	u, err := c.NewUrl("/foo")
-
-	if err != nil {
-		t.Errorf("No Error expected, got %v", err)
-	}
-
-	expectedU, _ := url.Parse("http://localhost/foo")
-	expectedU.Query().Set("token", "apiKey")
-
-	if !reflect.DeepEqual(expectedU, u)  {
-		t.Errorf("url = %v, expected %v", u, expectedU)
-	}
-
-}
 
 func TestClientNewRequest(t *testing.T) {
 	c := NewClient("http://localhost", "apiKey")
@@ -63,8 +45,39 @@ func TestClientNewRequest(t *testing.T) {
 		Href string `json:"href"`
 	}
 
-	inURL, _ := url.Parse("http://localhost/foo?token=apiKey")
+	inURL     := "/foo"
 	outURL   :=  "http://localhost/foo?token=apiKey"
+	inBody, outBody := &Link{Href: "l"}, `{"href":"l"}`+"\n"
+	req, _ := c.NewRequest("GET", inURL, inBody)
+
+	// test that relative URL was expanded
+	if req.URL.String() != outURL {
+		t.Errorf("NewRequest(%v) URL = %v, expected %v", inURL, req.URL, outURL)
+	}
+
+	// test that body was JSON encoded
+	body, _ := ioutil.ReadAll(req.Body)
+	if string(body) != outBody {
+		t.Errorf("NewRequest(%v) Body = %v, expected %v", inBody, string(body), outBody)
+	}
+
+	// test that default user-agent is attached to the request
+	userAgent := req.Header.Get("User-Agent")
+	if c.UserAgent != userAgent {
+		t.Errorf("NewRequest() User-Agent = %v, expected %v", userAgent, c.UserAgent)
+	}
+}
+
+
+func TestClientNewRequest_QueryString(t *testing.T) {
+	c := NewClient("http://localhost", "apiKey")
+
+	type Link struct {
+		Href string `json:"href"`
+	}
+
+	inURL     := "/foo?zjobs=One"
+	outURL   :=  "http://localhost/foo?token=apiKey&zjobs=One"
 	inBody, outBody := &Link{Href: "l"}, `{"href":"l"}`+"\n"
 	req, _ := c.NewRequest("GET", inURL, inBody)
 
@@ -101,8 +114,7 @@ func TestDo_GET(t *testing.T) {
 			fmt.Fprint(w, `{"Bar":"drink"}`)
 		})
 
-	u, _ := client.NewUrl("/")
-	req, _ := client.NewRequest("GET", u, nil)
+	req, _ := client.NewRequest("GET", "/", nil)
 	body := new(Foo)
 	client.Do(req, body)
 
@@ -129,8 +141,7 @@ func TestDo_POST(t *testing.T) {
 			fmt.Fprint(w, `{"Bar":"drink"}`)
 		})
 
-	u, _ := client.NewUrl("/")
-	req, _ := client.NewRequest("POST", u, nil)
+	req, _ := client.NewRequest("POST", "/", nil)
 	body := new(Foo)
 	client.Do(req, body)
 
