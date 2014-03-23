@@ -27,15 +27,26 @@ type Client struct {
 
 }
 
-
-func (c *Client) NewRequest(method string, urlString string, body interface{}) (*http.Request, error) {
+func (c *Client) NewUrl(urlString string) (*url.URL, error) {
 
 	rel, err := url.Parse(urlString)
+
 	if err != nil {
 		return nil, err
 	}
 
-	u := strings.TrimRight(c.BaseURL.String(), "/") + rel.String()
+	u, err := url.Parse(strings.TrimRight(c.BaseURL.String(), "/") + rel.String())
+
+	if err != nil {
+		return nil, err
+	}
+	u.Query().Set("token", c.ApiKey)
+
+	return u, nil
+}
+
+func (c *Client) NewRequest(method string, u *url.URL, body interface{}) (*http.Request, error) {
+
 	buf := new(bytes.Buffer)
 	if body != nil {
 		err := json.NewEncoder(buf).Encode(body)
@@ -44,8 +55,7 @@ func (c *Client) NewRequest(method string, urlString string, body interface{}) (
 		}
 	}
 
-
-	req, err := http.NewRequest(method, u, buf)
+	req, err := http.NewRequest(method, u.String(), buf)
 
 	if err != nil {
 		return nil, err

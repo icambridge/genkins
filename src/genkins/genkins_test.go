@@ -37,14 +37,34 @@ func tearDown() {
 	server.Close()
 }
 
+func TestClientNewUrl(t *testing.T) {
+
+	c := NewClient("http://localhost", "apiKey")
+
+	u, err := c.NewUrl("/foo")
+
+	if err != nil {
+		t.Errorf("No Error expected, got %v", err)
+	}
+
+	expectedU, _ := url.Parse("http://localhost/foo")
+	expectedU.Query().Set("token", "apiKey")
+
+	if !reflect.DeepEqual(expectedU, u)  {
+		t.Errorf("url = %v, expected %v", u, expectedU)
+	}
+
+}
+
 func TestClientNewRequest(t *testing.T) {
-	c := NewClient("http://localhost", "")
+	c := NewClient("http://localhost", "apiKey")
 
 	type Link struct {
 		Href string `json:"href"`
 	}
 
-	inURL, outURL := "/foo", "http://localhost/foo"
+	inURL, _ := url.Parse("http://localhost/foo?token=apiKey")
+	outURL   :=  "http://localhost/foo?token=apiKey"
 	inBody, outBody := &Link{Href: "l"}, `{"href":"l"}`+"\n"
 	req, _ := c.NewRequest("GET", inURL, inBody)
 
@@ -81,7 +101,8 @@ func TestDo_GET(t *testing.T) {
 			fmt.Fprint(w, `{"Bar":"drink"}`)
 		})
 
-	req, _ := client.NewRequest("GET", "/", nil)
+	u, _ := client.NewUrl("/")
+	req, _ := client.NewRequest("GET", u, nil)
 	body := new(Foo)
 	client.Do(req, body)
 
@@ -108,7 +129,8 @@ func TestDo_POST(t *testing.T) {
 			fmt.Fprint(w, `{"Bar":"drink"}`)
 		})
 
-	req, _ := client.NewRequest("POST", "/", nil)
+	u, _ := client.NewUrl("/")
+	req, _ := client.NewRequest("POST", u, nil)
 	body := new(Foo)
 	client.Do(req, body)
 
