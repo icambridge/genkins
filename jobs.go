@@ -1,7 +1,6 @@
 package genkins
 
 
-
 type JobsService struct {
 	client *Client
 }
@@ -25,11 +24,11 @@ func (s JobsService) GetAll() (jobView *JobView, err error)  {
 }
 
 type JobView struct {
-	Jobs []Job
+	Jobs []Job `json:"jobs"`
 }
 
 type Job struct {
-	Name  string
-	Color string
-	Url string
+	Name  string `json:"name"`
+	Color string `json:"color"`
+	Url string   `json:"url"`
 }
