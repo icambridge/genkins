@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 	"fmt"
+	"reflect"
 )
 
 func TestBuildsService_Trigger(t *testing.T) {
@@ -55,5 +56,43 @@ func TestBuildsService_TriggerWithParameters(t *testing.T) {
 
 	if hitApi == false {
 		t.Error("Didn't hit api")
+	}
+}
+
+
+func TestBuildsService_GetBuildInfo(t *testing.T) {
+	setUp()
+	defer tearDown()
+
+	hitApi := false
+	mux.HandleFunc("/job/test/10/api/json", func(w http.ResponseWriter, r *http.Request) {
+			if m := "GET"; m != r.Method {
+				t.Errorf("Request method = %v, expected %v", r.Method, m)
+			}
+			hitApi = true
+			fmt.Fprint(w, `{"fullDisplayName":"test #24"}`)
+		})
+
+	b := &Build{
+		Url: "job/test/10/",
+	}
+
+	info, err := client.Builds.GetInfo(b)
+
+	if err != nil {
+		t.Errorf("Didn't expect an error got : %v", err)
+	}
+
+	if hitApi == false {
+		t.Error("Didn't hit api")
+	}
+
+
+	expected := &BuildInfo{
+		FullDisplayName: "test #24",
+	}
+
+	if !reflect.DeepEqual(info, expected) {
+		t.Errorf("Response body = %v, expected %v", info, expected)
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-	"log"
 )
 
 type BuildsService struct {
@@ -55,9 +54,8 @@ func (s BuildsService) TriggerWithParameters(job string, parameters map[string]s
 	return nil
 }
 
-func (s BuildsService) GetInfo(b Build) (*BuildInfo, error) {
+func (s BuildsService) GetInfo(b *Build) (*BuildInfo, error) {
 	url := "/"+ b.Url + "api/json"
-	log.Println(url)
 	req, err := s.client.NewRequest("GET", url, nil)
 
 	if err != nil {
