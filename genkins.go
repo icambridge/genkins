@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"bytes"
 	"strings"
+	"log"
 )
 
 const (
@@ -19,8 +20,8 @@ type Client struct {
 
 	client *http.Client
 
-
-	ApiKey  string
+	username string
+	apiKey  string
 
 	UserAgent string
 
@@ -42,9 +43,7 @@ func (c *Client) NewRequest(method string, urlString string, body interface{}) (
 		return nil, err
 	}
 
-	v := u.Query()
-	v.Set("token", c.ApiKey)
-	u.RawQuery = v.Encode()
+
 
 	buf := new(bytes.Buffer)
 	if body != nil {
@@ -53,13 +52,16 @@ func (c *Client) NewRequest(method string, urlString string, body interface{}) (
 			return nil, err
 		}
 	}
-
+	log.Println(u.String())
 	req, err := http.NewRequest(method, u.String(), buf)
 
 	if err != nil {
 		return nil, err
 	}
 
+	if c.username != "" {
+		req.SetBasicAuth(c.username, c.apiKey)
+	}
 	req.Header.Add("User-Agent", c.UserAgent)
 
 	return req, nil
@@ -81,7 +83,7 @@ func (c *Client) Do(req *http.Request, output interface {}) error {
 }
 
 
-func NewClient(hostname string, apiKeyStr string) *Client {
+func NewClient(hostname string, usernameStr string, apiKeyStr string) *Client {
 	httpClient := http.DefaultClient
 
 
@@ -91,7 +93,8 @@ func NewClient(hostname string, apiKeyStr string) *Client {
 		client: httpClient,
 		UserAgent: userAgent,
 		BaseURL: baseURL,
-		ApiKey: apiKeyStr,
+		apiKey: apiKeyStr,
+		username: usernameStr,
 	}
 	c.Jobs = &JobsService{client: c}
 	c.Builds = &BuildsService{client: c}

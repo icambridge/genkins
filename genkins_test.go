@@ -27,7 +27,7 @@ func setUp() {
 	server = httptest.NewServer(mux)
 
 	// src.gobucket client configured to use test server
-	client = NewClient("", "theApiKey")
+	client = NewClient("", "", "theApiKey")
 	url, _ := url.Parse(server.URL)
 	client.BaseURL = url
 }
@@ -38,15 +38,16 @@ func tearDown() {
 }
 
 
+
 func TestClientNewRequest(t *testing.T) {
-	c := NewClient("http://localhost", "apiKey")
+	c := NewClient("http://localhost","", "apiKey")
 
 	type Link struct {
 		Href string `json:"href"`
 	}
 
 	inURL     := "/foo"
-	outURL   :=  "http://localhost/foo?token=apiKey"
+	outURL   :=  "http://localhost/foo"
 	inBody, outBody := &Link{Href: "l"}, `{"href":"l"}`+"\n"
 	req, _ := c.NewRequest("GET", inURL, inBody)
 
@@ -68,16 +69,34 @@ func TestClientNewRequest(t *testing.T) {
 	}
 }
 
+func TestClientNewRequest_HttpAuth(t *testing.T) {
+	c := NewClient("http://localhost","username", "apiKey")
+
+	type Link struct {
+		Href string `json:"href"`
+	}
+
+	inURL     := "/foo"
+	inBody:= &Link{Href: "l"}
+	req, _ := c.NewRequest("GET", inURL, inBody)
+
+	userAgent := req.Header.Get("Authorization")
+	expected := "Basic dXNlcm5hbWU6YXBpS2V5"
+	if expected != userAgent {
+		t.Errorf("NewRequest() User-Agent = %v, expected %v", userAgent, expected)
+	}
+}
+
 
 func TestClientNewRequest_QueryString(t *testing.T) {
-	c := NewClient("http://localhost", "apiKey")
+	c := NewClient("http://localhost","", "apiKey")
 
 	type Link struct {
 		Href string `json:"href"`
 	}
 
 	inURL     := "/foo?zjobs=One"
-	outURL   :=  "http://localhost/foo?token=apiKey&zjobs=One"
+	outURL   :=  "http://localhost/foo?zjobs=One"
 	inBody, outBody := &Link{Href: "l"}, `{"href":"l"}`+"\n"
 	req, _ := c.NewRequest("GET", inURL, inBody)
 
