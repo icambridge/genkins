@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"bytes"
 	"strings"
-	"log"
 )
 
 const (
@@ -52,7 +51,6 @@ func (c *Client) NewRequest(method string, urlString string, body interface{}) (
 			return nil, err
 		}
 	}
-	log.Println(u.String())
 	req, err := http.NewRequest(method, u.String(), buf)
 
 	if err != nil {
