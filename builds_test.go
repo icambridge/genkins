@@ -96,3 +96,60 @@ func TestBuildsService_GetBuildInfo(t *testing.T) {
 		t.Errorf("Response body = %v, expected %v", info, expected)
 	}
 }
+
+
+func TestBuildInfo_GetBranch_Unknown(t *testing.T) {
+
+	b := BuildInfo{}
+
+	name := "unknown"
+	if b.GetBranchName() != name {
+		t.Errorf("Expected %v got %v instead", name, b.GetBranchName())
+	}
+
+}
+
+func TestBuildInfo_GetBranch_TwoPart(t *testing.T) {
+
+	branches := []BuildBranch{
+		BuildBranch{Name: "origin/master"},
+	}
+
+	lbr := BuildLastBuiltRevision{
+		Branch: branches,
+	}
+
+	a := []BuildActions{
+		BuildActions{LastBuiltRevision: lbr},
+	}
+
+	b := BuildInfo{Actions: a}
+
+	name := "master"
+	if b.GetBranchName() != name {
+		t.Errorf("Expected %v got %v instead", name, b.GetBranchName())
+	}
+
+}
+
+func TestBuildInfo_GetBranch_OnePart(t *testing.T) {
+
+	branches := []BuildBranch{
+		BuildBranch{Name: "develop"},
+	}
+
+	lbr := BuildLastBuiltRevision{
+		Branch: branches,
+	}
+
+	a := []BuildActions{
+		BuildActions{LastBuiltRevision: lbr},
+	}
+
+	b := BuildInfo{Actions: a}
+
+	name := "develop"
+	if b.GetBranchName() != name {
+		t.Errorf("Expected %v got %v instead", name, b.GetBranchName())
+	}
+}
