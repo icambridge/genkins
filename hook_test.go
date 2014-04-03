@@ -1,18 +1,17 @@
 package genkins
 
 import (
-	"net/http"
-	"testing"
-	"reflect"
-	"io"
 	"bytes"
-//	"os"
+	"io"
+	"net/http"
+	"reflect"
+	"testing"
+	//	"os"
 )
 
 //{"name":"test","url":"job/test/","build":{"number":27,"phase":"STARTED","url":"job/test/27/"}}
 
 func TestGetHook(t *testing.T) {
-
 
 	req := &http.Request{}
 	req.ContentLength = 94
@@ -25,16 +24,14 @@ func TestGetHook(t *testing.T) {
 	}
 
 	expected := &Hook{
-		Name: "test",
-		Url: "job/test/",
+		Name:  "test",
+		Url:   "job/test/",
 		Build: Build{Number: 27, Phase: "STARTED", Url: "job/test/27/"},
 	}
 	if !reflect.DeepEqual(h, expected) {
 		t.Errorf("hook = %v, expected %v", h, expected)
 	}
 }
-
-
 
 type nopCloser struct {
 	io.Reader

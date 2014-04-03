@@ -55,7 +55,7 @@ func (s BuildsService) TriggerWithParameters(job string, parameters map[string]s
 }
 
 func (s BuildsService) GetInfo(b *Build) (*BuildInfo, error) {
-	url := "/"+ b.Url + "api/json"
+	url := "/" + b.Url + "api/json"
 	req, err := s.client.NewRequest("GET", url, nil)
 
 	if err != nil {
@@ -82,24 +82,23 @@ type Build struct {
 }
 
 type BuildInfo struct {
-	Number   int `json:"number"`
-	FullDisplayName string `json:"fullDisplayName"`
-	Result string `json:"result"`
-	Actions  []BuildActions `json:"actions"`
-	Culpirts []BuildCulprit `json:"culprits"`
+	Number          int            `json:"number"`
+	FullDisplayName string         `json:"fullDisplayName"`
+	Result          string         `json:"result"`
+	Actions         []BuildActions `json:"actions"`
+	Culpirts        []BuildCulprit `json:"culprits"`
 }
 
 type BuildCulprit struct {
 	FullName string `json:"fullName"`
 }
 
-
 type BuildActions struct {
 	LastBuiltRevision BuildLastBuiltRevision `json:"lastBuiltRevision"`
 }
 
 type BuildLastBuiltRevision struct {
-	Branch []BuildBranch  `json:"branch"`
+	Branch []BuildBranch `json:"branch"`
 }
 
 type BuildBranch struct {

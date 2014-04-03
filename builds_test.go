@@ -1,10 +1,10 @@
 package genkins
 
 import (
-	"net/http"
-	"testing"
 	"fmt"
+	"net/http"
 	"reflect"
+	"testing"
 )
 
 func TestBuildsService_Trigger(t *testing.T) {
@@ -12,12 +12,12 @@ func TestBuildsService_Trigger(t *testing.T) {
 	defer tearDown()
 	hitApi := false
 	mux.HandleFunc("/job/test/build", func(w http.ResponseWriter, r *http.Request) {
-			if m := "POST"; m != r.Method {
-				t.Errorf("Request method = %v, expected %v", r.Method, m)
-			}
-			hitApi = true
-			fmt.Fprint(w, `{"status":"success"}`)
-		})
+		if m := "POST"; m != r.Method {
+			t.Errorf("Request method = %v, expected %v", r.Method, m)
+		}
+		hitApi = true
+		fmt.Fprint(w, `{"status":"success"}`)
+	})
 
 	err := client.Builds.Trigger("test")
 
@@ -34,15 +34,15 @@ func TestBuildsService_TriggerWithParameters(t *testing.T) {
 	defer tearDown()
 	hitApi := false
 	mux.HandleFunc("/job/test/buildWithParameters", func(w http.ResponseWriter, r *http.Request) {
-			if m := "POST"; m != r.Method {
-				t.Errorf("Request method = %v, expected %v", r.Method, m)
-			}
-			if qs:= "testone"; qs != r.URL.Query().Get("parameter") {
-				t.Errorf("Query string tree = %v, expected %v", r.URL.Query().Get("parameter"), qs)
-			}
-			hitApi = true
-			fmt.Fprint(w, `{"status":"success"}`)
-		})
+		if m := "POST"; m != r.Method {
+			t.Errorf("Request method = %v, expected %v", r.Method, m)
+		}
+		if qs := "testone"; qs != r.URL.Query().Get("parameter") {
+			t.Errorf("Query string tree = %v, expected %v", r.URL.Query().Get("parameter"), qs)
+		}
+		hitApi = true
+		fmt.Fprint(w, `{"status":"success"}`)
+	})
 
 	m := map[string]string{
 		"parameter": "testone",
@@ -59,19 +59,18 @@ func TestBuildsService_TriggerWithParameters(t *testing.T) {
 	}
 }
 
-
 func TestBuildsService_GetBuildInfo(t *testing.T) {
 	setUp()
 	defer tearDown()
 
 	hitApi := false
 	mux.HandleFunc("/job/test/10/api/json", func(w http.ResponseWriter, r *http.Request) {
-			if m := "GET"; m != r.Method {
-				t.Errorf("Request method = %v, expected %v", r.Method, m)
-			}
-			hitApi = true
-			fmt.Fprint(w, `{"fullDisplayName":"test #24"}`)
-		})
+		if m := "GET"; m != r.Method {
+			t.Errorf("Request method = %v, expected %v", r.Method, m)
+		}
+		hitApi = true
+		fmt.Fprint(w, `{"fullDisplayName":"test #24"}`)
+	})
 
 	b := &Build{
 		Url: "job/test/10/",
@@ -87,7 +86,6 @@ func TestBuildsService_GetBuildInfo(t *testing.T) {
 		t.Error("Didn't hit api")
 	}
 
-
 	expected := &BuildInfo{
 		FullDisplayName: "test #24",
 	}
@@ -96,7 +94,6 @@ func TestBuildsService_GetBuildInfo(t *testing.T) {
 		t.Errorf("Response body = %v, expected %v", info, expected)
 	}
 }
-
 
 func TestBuildInfo_GetBranch_Unknown(t *testing.T) {
 

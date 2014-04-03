@@ -1,11 +1,10 @@
 package genkins
 
-
 type JobsService struct {
 	client *Client
 }
 
-func (s JobsService) GetAll() (jobView *JobView, err error)  {
+func (s JobsService) GetAll() (jobView *JobView, err error) {
 
 	req, err := s.client.NewRequest("GET", "/api/json?tree=jobs[name,url,color]", nil)
 
@@ -30,5 +29,5 @@ type JobView struct {
 type Job struct {
 	Name  string `json:"name"`
 	Color string `json:"color"`
-	Url string   `json:"url"`
+	Url   string `json:"url"`
 }

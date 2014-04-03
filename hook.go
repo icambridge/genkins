@@ -1,8 +1,8 @@
 package genkins
 
 import (
-	"net/http"
 	"encoding/json"
+	"net/http"
 )
 
 func GetHook(r *http.Request) (*Hook, error) {
@@ -29,4 +29,3 @@ type Hook struct {
 	Url   string `json:"url"`
 	Build Build  `json:"build"`
 }
-

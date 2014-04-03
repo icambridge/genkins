@@ -1,10 +1,10 @@
 package genkins
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/url"
-	"encoding/json"
-	"bytes"
 	"strings"
 )
 
@@ -14,17 +14,16 @@ const (
 )
 
 type Client struct {
-	BaseURL  *url.URL
-
+	BaseURL *url.URL
 
 	client *http.Client
 
 	username string
-	apiKey  string
+	apiKey   string
 
 	UserAgent string
 
-	Jobs *JobsService
+	Jobs   *JobsService
 	Builds *BuildsService
 }
 
@@ -41,8 +40,6 @@ func (c *Client) NewRequest(method string, urlString string, body interface{}) (
 	if err != nil {
 		return nil, err
 	}
-
-
 
 	buf := new(bytes.Buffer)
 	if body != nil {
@@ -65,8 +62,7 @@ func (c *Client) NewRequest(method string, urlString string, body interface{}) (
 	return req, nil
 }
 
-func (c *Client) Do(req *http.Request, output interface {}) error {
-
+func (c *Client) Do(req *http.Request, output interface{}) error {
 
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -80,19 +76,17 @@ func (c *Client) Do(req *http.Request, output interface {}) error {
 	return nil
 }
 
-
 func NewClient(hostname string, usernameStr string, apiKeyStr string) *Client {
 	httpClient := http.DefaultClient
-
 
 	baseURL, _ := url.Parse(hostname)
 
 	c := &Client{
-		client: httpClient,
+		client:    httpClient,
 		UserAgent: userAgent,
-		BaseURL: baseURL,
-		apiKey: apiKeyStr,
-		username: usernameStr,
+		BaseURL:   baseURL,
+		apiKey:    apiKeyStr,
+		username:  usernameStr,
 	}
 	c.Jobs = &JobsService{client: c}
 	c.Builds = &BuildsService{client: c}
