@@ -1,4 +1,4 @@
-genkins
+Genkins
 =======
 
 A simple Jenkins API wrapper in Go. Not production ready, being built for sitrep so features being added when they're needed.
